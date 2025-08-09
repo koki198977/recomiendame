@@ -1,42 +1,51 @@
 <template>
-  <div class="card">
-    <!-- Logo más pequeño y sobrio -->
-    <img src="@/assets/logo.png" alt="Logo" class="logo" />
-    <h1>Restablecer Contraseña</h1>
+  <div class="landing">
+    <!-- Fondo -->
+    <div class="bg-blur"></div>
+    <div class="bg-blob blob-1"></div>
+    <div class="bg-blob blob-2"></div>
 
-    <!-- Banner de mensaje -->
-    <div
-      v-if="message"
-      :class="[
-        'w-full mb-4 p-3 text-center rounded',
-        messageType === 'success'
-          ? 'bg-white text-black'
-          : 'bg-red-800 text-white'
-      ]"
-    >
-      {{ message }}
+    <div class="container glass card">
+      <!-- Logo -->
+      <img src="@/assets/logo.png" alt="Recomiéndame" class="logo" />
+      <h1>Restablecer Contraseña</h1>
+
+      <!-- Mensaje -->
+      <div
+        v-if="message"
+        :class="['msg', messageType === 'success' ? 'success' : 'error']"
+      >
+        {{ message }}
+      </div>
+
+      <!-- Formulario -->
+      <template v-if="!success">
+        <div class="form">
+          <input
+            type="password"
+            v-model="password"
+            placeholder="Nueva contraseña"
+            class="input"
+          />
+          <input
+            type="password"
+            v-model="confirmPassword"
+            placeholder="Repetir contraseña"
+            class="input"
+          />
+
+          <button @click="submit" :disabled="loading" class="btn primary">
+            <span v-if="!loading">Enviar</span>
+            <span v-else>Enviando...</span>
+          </button>
+        </div>
+      </template>
+
+      <!-- Botón volver -->
+      <div class="btn-row">
+        <router-link class="btn ghost" to="/">⬅ Volver al inicio</router-link>
+      </div>
     </div>
-
-    <!-- Formulario solo si no hubo éxito -->
-    <template v-if="!success">
-      <input
-        type="password"
-        v-model="password"
-        placeholder="Nueva contraseña"
-        class="input"
-      />
-      <input
-        type="password"
-        v-model="confirmPassword"
-        placeholder="Repetir contraseña"
-        class="input"
-      />
-
-      <button @click="submit" :disabled="loading" class="button">
-        <span v-if="!loading">Enviar</span>
-        <span v-else>Enviando...</span>
-      </button>
-    </template>
   </div>
 </template>
 
@@ -53,8 +62,8 @@ export default {
       loading: false,
       token: null,
       message: '',
-      messageType: '', // 'success' o 'error'
-      success: false,  // indica que ya cambió correctamente
+      messageType: '',
+      success: false
     };
   },
   created() {
@@ -84,71 +93,203 @@ export default {
       try {
         await axios.post(`${API_URL}/auth/reset-password`, {
           token: this.token,
-          newPassword: this.password,
+          newPassword: this.password
         });
-        // éxito: muestra mensaje blanco y oculta el form
         this.messageType = 'success';
         this.message = '¡Tu contraseña ha sido restablecida correctamente!';
         this.success = true;
-        // no redirigimos
       } catch (e) {
         this.messageType = 'error';
-        this.message = e.response?.data?.message || 'Error al restablecer contraseña';
+        this.message =
+          e.response?.data?.message || 'Error al restablecer contraseña';
         this.clearMessage();
       } finally {
         this.loading = false;
       }
-    },
-  },
+    }
+  }
 };
 </script>
 
-<style>
-.card {
-  background-color: #111;
-  padding: 1.5rem;
-  border-radius: 8px;
+<style scoped>
+/* Fondo estilo Home */
+.landing {
+  position: relative;
+  min-height: 100vh;
+  color: #fff;
+  background: radial-gradient(
+    1200px 600px at 10% 0%,
+    #1b1f3a 0%,
+    #0a0b12 60%,
+    #07070c 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.bg-blur {
+  position: absolute;
+  inset: -20%;
+  filter: blur(60px);
+  opacity: 0.35;
+  pointer-events: none;
+  background: radial-gradient(600px 400px at 80% 10%, #7c4dff 0%, transparent 60%),
+    radial-gradient(500px 300px at 15% 30%, #00d4ff 0%, transparent 60%),
+    radial-gradient(700px 500px at 70% 80%, #00ffa3 0%, transparent 65%);
+}
+.bg-blob {
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: 0.18;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  animation: float 14s ease-in-out infinite;
+}
+.blob-1 {
+  left: -120px;
+  top: 120px;
+  background: #6a5acd;
+}
+.blob-2 {
+  right: -140px;
+  top: 40px;
+  background: #00c2ff;
+  animation-delay: 5s;
+}
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(30px);
+  }
+}
+
+/* Card glass */
+.container {
+  max-width: 1120px; /* igual que Home */
+  width: 100%;
+  padding: 0 20px;
+}
+.glass.card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(10px);
+  padding: 32px;
+  position: relative;
+  z-index: 2;
   text-align: center;
-  width: 320px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
+
+/* Logo y título */
 .logo {
   width: 80px;
   margin: 0 auto 1rem;
 }
 h1 {
-  color: #a855f7;
+  font-size: 1.4rem;
   margin-bottom: 1rem;
-  font-size: 1.25rem;
+  color: #00ffa3;
 }
-.input {
-  width: 90%;
+
+/* Mensajes */
+.msg {
+  width: 100%;
+  max-width: 640px;
   padding: 0.75rem;
-  margin-bottom: 0.75rem;
-  border: none;
-  border-radius: 4px;
-  background-color: #222;
-  color: #fff;
-  font-size: 1rem;
-  text-align: left;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-weight: 500;
 }
-.button {
-  background-color: #a855f7;
+.msg.success {
+  background: #fff;
+  color: #000;
+}
+.msg.error {
+  background: #c62828;
   color: #fff;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-  width: 90%;
-  margin-top: 0.5rem;
+}
+
+/* Formulario */
+.form {
+  width: 100%;
+  max-width: 560px;
+  margin: 8px auto 0;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 10px;
 }
-.button[disabled] {
+@media (min-width: 1280px) {
+  .form {
+    max-width: 640px;
+  }
+}
+
+/* Inputs */
+.input {
+  width: 100%;
+  padding: 0.95rem;
+  margin-bottom: 0.9rem;
+  border: none;
+  border-radius: 10px;
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+.input:focus {
+  outline: 2px solid #00c2ff;
+}
+
+/* Botones */
+.btn {
+  display: inline-block;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  text-decoration: none;
+  color: #fff;
+  cursor: pointer;
+  text-align: center;
+}
+.btn.primary {
+  width: 100%;
+  background: linear-gradient(135deg, #00ffa3 0%, #00c2ff 100%);
+  color: #04121a;
+  box-shadow: 0 10px 28px rgba(0, 194, 255, 0.25);
+}
+.btn.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 36px rgba(0, 194, 255, 0.35);
+}
+.btn.ghost {
+  background: rgba(255, 255, 255, 0.06);
+}
+.btn.ghost:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
+}
+.btn[disabled] {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.btn-row {
+  margin-top: 1rem;
+  text-align: center;
 }
 </style>
