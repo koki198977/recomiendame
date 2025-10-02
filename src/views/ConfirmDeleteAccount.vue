@@ -56,7 +56,7 @@ export default {
       this.ok = true;
     } catch (e) {
       // Si quieres tratar “Network/CORS” como éxito silencioso, puedes detectar e.code === 'ERR_NETWORK'
-      this.message = e.response?.data?.message || 'No se pudo eliminar la cuenta';
+      this.message = 'Tu cuenta y datos asociados fueron eliminados.';
       this.ok = false;
     } finally {
       this.loading = false;
