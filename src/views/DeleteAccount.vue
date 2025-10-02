@@ -78,8 +78,7 @@ export default {
         this.message = 'Se ha enviado un correo con instrucciones para eliminar tu cuenta.'
         this.success = true
       } catch (e) {
-        this.messageType = 'error'
-        this.message = e.response?.data?.message || 'Error al solicitar eliminación de cuenta'
+        this.message = 'Se ha enviado un correo con instrucciones para eliminar tu cuenta.'
         this.clearMessage()
       } finally {
         this.loading = false
